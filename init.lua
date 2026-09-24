@@ -14,6 +14,18 @@ end
 vim.opt.rtp:prepend(lazypath)
 
 require("vim-options")
+
+-- Neovim does not ship filetype detection for the common HLSL extensions.
+-- `slangd` attaches to the `hlsl` filetype, so define it before files open.
+vim.filetype.add({
+  extension = {
+    hlsl = "hlsl",
+    hlsli = "hlsl",
+    fx = "hlsl",
+    fxi = "hlsl",
+  },
+})
+
 require("lazy").setup({
   spec = "plugins",
   change_detection = { notify = false }
@@ -86,4 +98,25 @@ vim.keymap.set("n", "<leader>s", [[:%s/\<<C-r><C-w>\>/<C-r><C-w>/gI<Left><Left><
 vim.api.nvim_create_autocmd('FileType', {
   pattern = { 'svelte' },
   callback = function() vim.treesitter.start() end,
+})
+
+vim.api.nvim_create_user_command("GodotOpen", function(args)
+  if #args.fargs ~= 3 then
+    vim.notify("GodotOpen expects: file line column", vim.log.levels.ERROR)
+    return
+  end
+
+  local file = args.fargs[1]
+  local line = tonumber(args.fargs[2]) or 1
+  local column = tonumber(args.fargs[3]) or 1
+
+  vim.cmd("drop " .. vim.fn.fnameescape(file))
+
+  vim.api.nvim_win_set_cursor(0, {
+    math.max(line - 1, 0),
+    math.max(column - 1, 0),
+  })
+end, {
+  nargs = "+",
+  complete = "file",
 })
