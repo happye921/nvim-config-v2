@@ -60,8 +60,13 @@ vim.keymap.set("v", "J", ":m '>+1<CR>gv=gv")
 vim.keymap.set("v", "K", ":m '<-2<CR>gv=gv")
 
 vim.keymap.set("n", "J", "mzJ`z")
-vim.keymap.set("n", "<C-d>", "<C-d>zz")
-vim.keymap.set("n", "<C-u>", "<C-u>zz")
+-- Center after the animation finishes, preserving the original <C-d>zz / <C-u>zz behavior.
+vim.keymap.set("n", "<C-d>", function()
+  require("neoscroll").ctrl_d({ duration = 250, info = "center" })
+end)
+vim.keymap.set("n", "<C-u>", function()
+  require("neoscroll").ctrl_u({ duration = 250, info = "center" })
+end)
 vim.keymap.set("n", "n", "nzzzv")
 vim.keymap.set("n", "N", "Nzzzv")
 
